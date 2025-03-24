@@ -4,7 +4,18 @@ format: html
 editor_options: 
   chunk_output_type: console
 ---
-
+```{r}
+library(tidyverse)
+library(stringr)
+library(rvest)
+library(polite)
+library(sf)
+library(maps)
+library(viridis)
+library(leaflet)
+library(htmltools)
+library(janitor)
+```
 
 ```{r}
 # check that scraping is allowed (Step 0)
@@ -14,28 +25,35 @@ robotstxt::paths_allowed("https://en.wikipedia.org/wiki/List_of_colleges_and_uni
 mn_colleges <- read_html("https://en.wikipedia.org/wiki/List_of_colleges_and_universities_in_Minnesota")
 
 # 2: html_nodes()
-tables <- html_nodes(mn_colleges_and_universities, css = "table") 
+tables <- html_nodes(mn_colleges, css = "table") 
 tables  # have to guesstimate which table contains climate info
 
 # 3: html_table()
 html_table(tables, header = TRUE, fill = TRUE)    # find the right table
-mpls_data1 <- html_table(tables, header = TRUE, fill = TRUE)[[1]]  
-mpls_data1
-mpls_data2 <- html_table(tables, header = TRUE, fill = TRUE)[[2]]  
-mpls_data2
+mn_data1 <- html_table(tables, header = TRUE, fill = TRUE)[[2]]  
+mn_data1
 ```
 
-Now we wrap the 4 steps above into the `bow` and `scrape` functions from the `polite` package:
-
 ```{r}
-session <- bow("https://www.usclimatedata.com/climate/minneapolis/minnesota/united-states/usmn0503", force = TRUE)
+session <- bow("https://en.wikipedia.org/wiki/List_of_colleges_and_universities_in_Minnesota", force = TRUE)
 
 result <- scrape(session) |>
   html_nodes(css = "table") |> 
   html_table(header = TRUE, fill = TRUE)
-mpls_data1 <- result[[1]]
-mpls_data2 <- result[[2]]
+mn_data2 <- result[[2]]
 
-mpls_data1 
-mpls_data2
+mn_data2
 ```
+
+```{r}
+mn_colleges <- mn_data2 |>
+  rename(
+    "institution" = "Institution",
+    "location" = "Location(s)",
+    "public_private" = "Control[note 1]",
+    "type" = "Type[note 2]",
+    "enrollment" = "Enrollment[14](fall 2023)",
+    "date_founded" = "Founded"
+  )
+```
+
