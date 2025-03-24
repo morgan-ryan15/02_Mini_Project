@@ -93,7 +93,16 @@ mn_colleges <- mn_data2 |>
   ) |>
   filter(!(is.na(public_private))) 
 
-
+mn_data2 |>
+  clean_names() |>
+  rename(
+    locations = location_s,
+    public_private = control_note_1,
+    type = type_note_2,
+    enrollment = enrollment_14_fall_2023,
+    date_founded = founded
+  )
+  
 ```
 
 ```{r}
