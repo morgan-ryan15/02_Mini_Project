@@ -5,6 +5,18 @@ editor_options:
   chunk_output_type: console
 ---
 
+Before you begin acquiring data, describe your motivations for obtaining the data you plan to gather, including questions you hope to answer. 
+
+	As college students, we are interested in data on colleges and universities in Minnesota and the surrounding states. As the “enrollment cliff” nears, questions regarding higher education are particularly interesting. We are curious about how many schools are in each state, the size of the schools, and any other variables that provide college-level information. We want to investigate this state-wide data in hopes of building a better picture of what further education in Minnesota looks like.
+
+After collecting and tidying your data, describe how you might use your data to investigate questions of interest.
+
+We will be cleaning our data and renaming our column names to see the different nuances in this dataset, excluding the defunct institutions, and only focusing on the current and successful colleges in the area. We decided to make a binary column indicating if the college was affiliated with a religious institution, or not; this was to help with the parenthesis issue (colleges that had a religious affiliation had parenthesis to indicate which religion they followed) and ensure that there would not be any in the final tidy dataset. 
+Using the polite package, we confirmed that we were scraping the data ethically and responsibly and following good web scraping practices. Before we scraped it, we also made sure we were complying with the website's terms of service.
+After scraping and tidying our data, we could easily view the geographic location of each college by making a map (after finding the latitude and longitude for each). Additionally, we could visualize our data in numerous ways. For example, we could make a bar chart of average enrollment with bins for each institution type. 
+
+
+
 
 ```{r}
 #| include: FALSE
@@ -78,6 +90,24 @@ mn_colleges <- mn_data2 |>
     "type" = "Type[note 2]",
     "enrollment" = "Enrollment[14](fall 2023)",
     "date_founded" = "Founded"
-  )
+  ) |>
+  filter(!(is.na(public_private))) 
+
+
+```
+
+```{r}
+rel_or_not <- mn_colleges$public_private
+
+output <- vector()
+for(i in length(rel_or_not)) {
+  output[i] <- str_split(rel_or_not[i], "\\(")
+}
+output
+
+for(i in seq_along(rel_or_not)) {
+  if (str_extract(rel_or_not[i], "\\(") == TRUE) {
+}
+}
 ```
 
