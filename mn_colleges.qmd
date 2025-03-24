@@ -5,8 +5,12 @@ editor_options:
   chunk_output_type: console
 ---
 
+
 ```{r}
 #| include: FALSE
+
+
+
 
 library(tidyverse)
 library(stringr)
@@ -17,7 +21,10 @@ library(maps)
 library(viridis)
 library(leaflet)
 library(htmltools)
+library(janitor)
 ```
+
+
 
 
 
@@ -34,12 +41,15 @@ tables  # have to guesstimate which table contains climate info
 
 # 3: html_table()
 html_table(tables, header = TRUE, fill = TRUE)    # find the right table
+
 mpls_data1 <- html_table(tables, header = TRUE, fill = TRUE)[[2]]  
 mpls_data1
 
-```
 
-Now we wrap the 4 steps above into the `bow` and `scrape` functions from the `polite` package:
+mn_data1 <- html_table(tables, header = TRUE, fill = TRUE)[[2]]  
+mn_data1
+
+```
 
 ```{r}
 session <- bow("https://en.wikipedia.org/wiki/List_of_colleges_and_universities_in_Minnesota", force = TRUE)
@@ -47,8 +57,27 @@ session <- bow("https://en.wikipedia.org/wiki/List_of_colleges_and_universities_
 result <- scrape(session) |>
   html_nodes(css = "table") |> 
   html_table(header = TRUE, fill = TRUE)
+
 mpls_data1 <- result[[2]]
 
 mpls_data1 
 
+
+mn_data2 <- result[[2]]
+
+mn_data2
+
 ```
+
+```{r}
+mn_colleges <- mn_data2 |>
+  rename(
+    "institution" = "Institution",
+    "location" = "Location(s)",
+    "public_private" = "Control[note 1]",
+    "type" = "Type[note 2]",
+    "enrollment" = "Enrollment[14](fall 2023)",
+    "date_founded" = "Founded"
+  )
+```
+
