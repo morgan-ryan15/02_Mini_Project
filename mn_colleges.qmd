@@ -21,9 +21,6 @@ After scraping and tidying our data, we could easily view the geographic locatio
 ```{r}
 #| include: FALSE
 
-
-
-
 library(tidyverse)
 library(stringr)
 library(rvest)
@@ -118,5 +115,122 @@ for(i in seq_along(rel_or_not)) {
   if (str_extract(rel_or_not[i], "\\(") == TRUE) {
 }
 }
+```
+
+
+*NEW STUFF BELOW!!!!*
+
+*MN COLLEGES/UNIVERSITY*
+```{r}
+# check that scraping is allowed (Step 0)
+robotstxt::paths_allowed("https://en.wikipedia.org/wiki/List_of_colleges_and_universities_in_Minnesota")
+
+# Step 1: read_html()
+mn_colleges <- read_html("https://en.wikipedia.org/wiki/List_of_colleges_and_universities_in_Minnesota")
+
+# 2: html_nodes()
+tables <- html_nodes(mn_colleges, css = "table") 
+tables  # have to guesstimate which table contains climate info
+
+# 3: html_table()
+html_table(tables, header = TRUE, fill = TRUE)    # find the right table
+
+mn_data1 <- html_table(tables, header = TRUE, fill = TRUE)[[2]]  
+mn_data1
+
+```
+
+```{r}
+session <- bow("https://en.wikipedia.org/wiki/List_of_colleges_and_universities_in_Minnesota", force = TRUE)
+
+result <- scrape(session) |>
+  html_nodes(css = "table") |> 
+  html_table(header = TRUE, fill = TRUE)
+
+mn_data1 <- result[[2]]
+
+mn_data1 
+
+```
+
+```{r}
+#filter and clean minnesota college/university data
+mn_data1 <- mn_data1 |>
+  clean_names() |>
+  select(institution) |>
+  mutate(
+    #making st bens and st johns "one college" 
+    institution = str_trim(str_replace(institution, "and Saint John's University", ""))
+  )
+
+mn_list <- as.list(mn_data1$institution)
+
+mn_list
+
+```
+
+*MIAC CONFERENCE*
+```{r}
+# check that scraping is allowed (Step 0)
+robotstxt::paths_allowed("https://en.wikipedia.org/wiki/Minnesota_Intercollegiate_Athletic_Conference")
+
+# Step 1: read_html()
+miac_colleges <- read_html("https://en.wikipedia.org/wiki/Minnesota_Intercollegiate_Athletic_Conference")
+
+# 2: html_nodes()
+miac_tables <- html_nodes(miac_colleges, css = "table") 
+miac_tables  # have to guesstimate which table contains climate info
+
+# 3: html_table()
+html_table(miac_tables, header = TRUE, fill = TRUE)    # find the right table
+
+miac_data <- html_table(miac_tables, header = TRUE, fill = TRUE)[[2]]  
+
+miac_data
+
+```
+
+```{r}
+#bow and get scrape data
+session <- bow("https://en.wikipedia.org/wiki/Minnesota_Intercollegiate_Athletic_Conference", force = TRUE)
+
+miac_result <- scrape(session) |>
+  html_nodes(css = "table") |> 
+  html_table(header = TRUE, fill = TRUE)
+
+#begin cleaning miac data
+miac_data1 <- miac_result[[2]] |>
+  clean_names() 
+
+miac_data1 <- miac_data1 |>
+  select(institution) |>
+  mutate(
+    #fixing name consistency
+    institution = str_trim(str_replace(institution, "\\[.*\\]", ""), side = "right"),
+    institution = str_trim(str_replace(institution, "Mary's University", "Mary's University of Minnesota"), side = "right") 
+  )
+
+miac_data1
+
+
+miac_list <- as.list(miac_data1$institution)
+miac_list
+
+```
+
+```{r}
+#creating function to look for MN colleges who aren't in the miac
+not_in_miac <- function(college_list) {
+  not_matched <- vector()
+  for(i in college_list){
+    if(!(i %in% miac_list)) {
+      not_matched <- c(not_matched, i)
+    }
+  }
+  not_matched
+}
+
+not_in_miac(mn_list)
+
 ```
 
