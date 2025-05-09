@@ -20,7 +20,7 @@ library(readr)
 ```
 
 ```{r}
-ic <- read_csv("~/Downloads/ic2023.csv") |>
+ic <- read_csv("final_project/data/ic2023.csv") |>
   select(college_id = UNITID, 
          study_abroad = SLO6, 
          room_capacity = ROOMCAP, 
@@ -28,12 +28,12 @@ ic <- read_csv("~/Downloads/ic2023.csv") |>
          college_ran_housing = ROOM, 
          meals_per_week = MEALSWK) 
   
-ic_ay <- read_csv("~/Downloads/ic2023_ay.csv") |>
+ic_ay <- read_csv("final_project/data/ic2023_ay.csv") |>
   select(college_id = UNITID,
          in_state_tuition = TUITION2,
          food_housing_fee = CHG5AY3) 
 
-hd <- read_csv("~/Downloads/hd2023 2.csv") |>
+hd <- read_csv("final_project/data/hd2023 2.csv") |>
   select(college_id = UNITID,
          college_name = INSTNM,
          city = CITY,
