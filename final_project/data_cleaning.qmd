@@ -41,7 +41,8 @@ hd <- read_csv("final_project/data/hd2023 2.csv") |>
          open_or_closed = CYACTIVE,
          size_type = INSTSIZE,
          longitude = LONGITUD,
-         latitude = LATITUDE)
+         latitude = LATITUDE,
+         public_private = CONTROL)
 
 effy <- read_csv("final_project/data/effy2023.csv") |> 
   select(college_id = UNITID,
