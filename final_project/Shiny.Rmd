@@ -1,13 +1,46 @@
 ---
-title: "Web Scraping Shiny"
-author: "Solveig Senf"
-date: "2025-05-06"
-output: html_document
+title: "MN College Information"
+output: 
+  flexdashboard::flex_dashboard:
+    theme:
+      version: 4
+      bootswatch: flatly
 runtime: shiny
 ---
 
+About
+==========================
+
+Column
+---------------------------
+
+#### Welcome!
+
+Hello high-schoolers! As recent high school graduates, we understand that navigating your college decision is difficult. We hope you find this website to be useful as you investigate Minnesota colleges and universities. We have conducted an analysis of multiple factors you might be considering, but please note that everyone cares about different things when evaluating colleges. This is just one place to start! Good luck!
+
+- Solveig, Ela, and Morgan
+
+
+#### Information
+
+**Authors:**
+
+Solveig Senf, Ela Kanade, & Morgan Ryan
+
+**Data & College Resources**
+
+The data used in this project is from National Center for Education Statistics' IPEDS data base. We compiled data from multiple data sets which all can be accessed [here](https://nces.ed.gov/ipeds/datacenter/DataFiles.aspx?gotoReportId=7&fromIpeds=true&sid=3ce8c2b7-5a48-42a0-baf2-9089ef924924&rtid=7). 
+
+Additionally, we have taken data from ["Niche"](https://www.niche.com/?ref=colleges). It is an excellent resource for information on colleges. Just search for a school!
+
+If you still have unanswered questions about the colleges you are interested in, we recommend visiting [U.S. News Best Colleges](https://www.usnews.com/best-colleges) or spending some time on the college's own website.  
+
+Tuition
+==========================
+
 ```{r setup, include=FALSE}
-library(AER)
+knitr::opts_chunk$set(echo = TRUE)
+
 library(tidyverse)
 library(stringr)
 library(rvest)
@@ -18,6 +51,132 @@ library(viridis)
 library(leaflet)
 library(htmltools)
 library(readr)
+library(ggplot2)
+library(ggthemes)
+library(ggrepel)
+library(plotly)
+```
+
+```{r, echo = FALSE, include = FALSE}
+ic <- read_csv("data/ic2023.csv") |>
+  select(college_id = UNITID, 
+         study_abroad = SLO6, 
+         room_capacity = ROOMCAP, 
+         ncaa = ASSOC1, 
+         college_ran_housing = ROOM, 
+         meals_per_week = MEALSWK) 
+  
+ic_ay <- read_csv("data/ic2023_ay.csv") |>
+  select(college_id = UNITID,
+         in_state_tuition = TUITION2,
+         food_housing_fee = CHG5AY3) 
+
+hd <- read_csv("data/hd2023 2.csv") |>
+  select(college_id = UNITID,
+         college_name = INSTNM,
+         city = CITY,
+         state = STABBR,
+         open_or_closed = CYACTIVE,
+         size_type = INSTSIZE,
+         longitude = LONGITUD,
+         latitude = LATITUDE,
+         public_private = CONTROL)
+
+effy <- read_csv("data/effy2023.csv") |> 
+  select(college_id = UNITID,
+         student_type = EFFYLEV,
+         total_enrollment = EFYTOTLT,
+         total_men = EFYTOTLM,
+         total_women = EFYTOTLW) |>
+  filter(student_type == "2") #filters for undergraduate enrollment numbers 
+
+s <- read_csv("data/s2023_sis.csv") |>
+  select(college_id = UNITID,
+         employment_type = FACSTAT, 
+         total_faculty = SISTOTL) |>
+  filter(employment_type == "10") |> #staff with faculty status
+  select(-employment_type)
+
+
+```
+
+```{r, echo = FALSE, include = FALSE}
+ic_full <- ic |>
+  left_join(ic_ay)  
+
+ic_hd <- ic_full |>
+  left_join(hd)
+
+college_data <- ic_hd |>
+  left_join(effy)
+
+college_data2 <- college_data |>
+  left_join(s)
+
+mn_college_data <- college_data2 |>
+  filter(state == "MN") |>
+  arrange(college_name)
+```
+
+```{r, echo = FALSE, include = FALSE}
+tuition_by_size <- mn_college_data |>
+  select(size_type, in_state_tuition, public_private) |>
+  filter(!is.na(in_state_tuition), in_state_tuition != ".") |>
+  group_by(size_type, public_private) |>
+  mutate(in_state_tuition = as.numeric(in_state_tuition),
+         size_type = as.factor(size_type),
+         public_private = as.factor(public_private),
+         size_type = fct_recode(size_type, 
+                                "< 1,000" = "1",
+                                "1,000 - 4,999" = "2",
+                                "5,000 - 9,999" = "3",
+                                "10,000 - 19,999" = "4",
+                                "20,000 +" = "5"),
+         public_private = fct_recode(public_private,
+                                     "Public" = "1",
+                                     "Private (not-for-profit)" = "2",
+                                     "Private (for-profit)" = "3")) |>
+  summarize(mean_tuition = mean(in_state_tuition)) 
+```
+
+Column 
+-------------------------
+
+```{r, echo = FALSE, warning = FALSE}
+inputPanel(
+  checkboxInput("type_check", "Color by Institution Type?", value = FALSE)
+)
+```
+
+Column {.tabset}
+-------------------------
+
+```{r, echo = FALSE, warning = FALSE}
+renderPlot({
+     if (input$type_check) 
+        ggplot(tuition_by_size, aes(x = size_type, y = mean_tuition))  + 
+          geom_bar(aes(fill = public_private), stat = "identity") +
+          theme_classic() +
+          scale_fill_colorblind() +
+          labs(title = "Average Tuition by Institution Size",
+               subtitle = "Colored by Institution Type",
+               x = "Size",
+               y = "Average Tuition",
+               fill = "Type")
+     else if (!input$type_check)      
+        ggplot(tuition_by_size, aes(x = size_type, y = mean_tuition))  + 
+          geom_bar(stat = "identity") +
+          theme_classic() +
+          scale_fill_colorblind() +
+          labs(title = "Average Tuition by Institution Size",
+               subtitle = "Colored by Institution Type",
+               x = "Size",
+               y = "Average Tuition",
+               fill = "Type")
+})
+```
+
+```{r, include = FALSE}
 
 robotstxt::paths_allowed("https://www.niche.com/colleges/search/best-colleges/")
 
@@ -39,7 +198,7 @@ college_for_majors <- college_data |>
          college = str_replace_all(college, " ", "-"))
 ```
 
-```{r, echo=FALSE}
+```{r, include = FALSE}
 titlePanel("")
 
 inputPanel(
