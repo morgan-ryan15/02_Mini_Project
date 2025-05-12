@@ -127,8 +127,24 @@ mn_college_data <- college_data2 |>
   arrange(college_name)
 ```
 
+Column {data-width = 100}
+-------------------------
+
+**Wondering about location?**
+
+Check out this map of Minnesota colleges and universities! Click on each marker for the college name, city, and enrollment!
+
+```{r, echo = FALSE}
+renderImage({
+    list(src = "images/pointing_grad.png", width = 400, height = 450)
+  })
+```
+
 Column {data-width = 600}
 -------------------------
+
+**Minnesota College Map**
+
 ```{r, echo = FALSE}
 
 mn_map <- leaflet() |>
