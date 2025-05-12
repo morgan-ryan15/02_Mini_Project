@@ -19,10 +19,12 @@ library(htmltools)
 library(readr)
 library(ggplot2)
 library(ggthemes)
+library(ggrepel)
+library(plotly)
 ```
 
 
-#Tuition by size
+# Tuition by size
 
 ```{r}
 mn_college_data |>
@@ -53,4 +55,63 @@ mn_college_data |>
   theme_classic() +
   scale_fill_colorblind()
 ```
+# Enrollment Vs Student-to-Faculty Ratio
 
+## All schools
+
+```{r}
+interactive <- mn_college_data |>
+  select(total_enrollment, total_faculty, college_name, public_private) |>
+  filter(total_enrollment != "NA",
+         total_faculty != "NA") |>
+  mutate(student_to_fac = total_enrollment/total_faculty,
+         total_enrollment = as.numeric(total_enrollment),
+         public_private = as.factor(public_private),
+         public_private = fct_recode(public_private,
+                                     "Public" = "1",
+                                     "Private (not-for-profit)" = "2",
+                                     "Private (for-profit)" = "3")) |>
+  ggplot(aes(x = total_enrollment, y = student_to_fac)) +
+  geom_point(aes(text = college_name, color = public_private)) +
+  geom_text_repel(aes(label = college_name)) +
+  labs(title = "Total Enrollment Vs. Student-to-faculty Ratio",
+       x = "Enrollment",
+       y = "Student-to-faculty",
+       color = "Institution Type") +
+  theme_classic() +
+  scale_color_colorblind()
+
+interactive_labels <- ggplotly(interactive)
+
+interactive_labels
+```
+
+## Removed Outliers 
+
+```{r}
+interactive <- mn_college_data |>
+  select(total_enrollment, total_faculty, college_name, public_private) |>
+  filter(total_enrollment != "NA",
+         total_faculty != "NA") |>
+  mutate(student_to_fac = total_enrollment/total_faculty,
+         total_enrollment = as.numeric(total_enrollment),
+         public_private = as.factor(public_private),
+         public_private = fct_recode(public_private,
+                                     "Public" = "1",
+                                     "Private (not-for-profit)" = "2",
+                                     "Private (for-profit)" = "3")) |>
+  filter(college_name != c("University of Minnesota", "Capella University")) |>
+  ggplot(aes(x = total_enrollment, y = student_to_fac)) +
+  geom_point(aes(text = college_name, color = public_private)) +
+  geom_text_repel(aes(label = college_name)) +
+  labs(title = "Total Enrollment Vs. Student-to-faculty Ratio",
+       x = "Enrollment",
+       y = "Student-to-faculty",
+       color = "Institution Type") +
+  theme_classic() +
+  scale_color_colorblind()
+
+interactive_labels <- ggplotly(interactive)
+
+interactive_labels
+```
