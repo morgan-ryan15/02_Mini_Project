@@ -16,9 +16,9 @@ Column {data-width = 650}
 
 #### Welcome!
 
-Hello high-schoolers! As recent high school graduates, we understand that navigating your college decision is difficult. We hope you find this website to be useful as you investigate Minnesota colleges and universities. We have conducted an analysis of multiple factors you might be considering, but please note that everyone cares about different things when evaluating colleges. This is just one place to start! Good luck!
+**Hello high-schoolers! As recent high school graduates, we understand that navigating your college decision is difficult. We hope you find this website to be useful as you investigate Minnesota colleges and universities. We have conducted an analysis of multiple factors you might be considering, but please note that everyone cares about different things when evaluating colleges. This is just one place to start! Good luck!**
 
--Solveig, Ela, and Morgan
+**-Solveig, Ela, and Morgan**
 
 
 #### Information
@@ -68,6 +68,7 @@ library(kableExtra)
 ```
 
 ```{r, echo = FALSE, include = FALSE}
+#Data Cleaning!
 ic <- read_csv("data/ic2023.csv") |>
   select(college_id = UNITID, 
          study_abroad = SLO6, 
@@ -106,11 +107,10 @@ s <- read_csv("data/s2023_sis.csv") |>
          total_faculty = SISTOTL) |>
   filter(employment_type == "10") |> #staff with faculty status
   select(-employment_type)
-
-
 ```
 
 ```{r, echo = FALSE, include = FALSE}
+#Joining clean data sets
 ic_full <- ic |>
   left_join(ic_ay)  
 
@@ -129,6 +129,7 @@ mn_college_data <- college_data2 |>
 ```
 
 ```{r, echo = FALSE, include = FALSE}
+#tibble for tuition by size graph
 tuition_by_size <- mn_college_data |>
   select(size_type, in_state_tuition, public_private) |>
   filter(!is.na(in_state_tuition), in_state_tuition != ".") |>
@@ -164,7 +165,7 @@ mn_college_data |>
   rename(college_name, "College Name" = "college_name",
          public_private, "College Type" = "public_private") |>
   arrange(`College Type`) |>
-  kable()
+  kable() #displays table nicely 
 ```
 
 
@@ -226,6 +227,64 @@ mn_college_data |>
        y = "Average Tuition") +
   theme_classic() +
   scale_fill_colorblind(guide = "none") 
+```
+
+Student/Faculty Ratio
+==========================
+
+Column {data-height = 1500}
+-------------------------
+
+```{r, echo = FALSE, include = FALSE}
+#tibble for student-to-faculty interactive plot
+interactive_data <- mn_college_data |>
+  select(total_enrollment, total_faculty, college_name, public_private) |>
+  filter(total_enrollment != "NA",
+         total_faculty != "NA") |>
+  mutate(student_to_fac = total_enrollment/total_faculty,
+         total_enrollment = as.numeric(total_enrollment),
+         public_private = as.factor(public_private),
+         public_private = fct_recode(public_private,
+                                     "Public" = "1",
+                                     "Private (not-for-profit)" = "2",
+                                     "Private (for-profit)" = "3")) 
+```
+
+```{r, echo = FALSE, warning = FALSE}
+inputPanel(
+  checkboxInput("type_check", "Color by Institution Type?", value = FALSE)
+)
+```
+
+```{r, echo = FALSE, warning = FALSE}
+renderPlotly({
+     if (input$type_check) {
+        interactive <- ggplot(interactive_data, aes(x = total_enrollment, y = student_to_fac)) +
+        geom_point(aes(text = college_name, color = public_private)) +
+        geom_text_repel(aes(label = college_name)) +
+        labs(title = "Total Enrollment Vs. Student-to-faculty Ratio",
+            x = "Enrollment",
+            y = "Student-to-faculty",
+            color = "Institution Type") +
+        theme_classic() +
+        scale_color_colorblind() 
+  
+        ggplotly(interactive)
+     }
+     else if (!input$type_check) {
+        interactive2 <- ggplot(interactive_data, aes(x = total_enrollment, y = student_to_fac)) +
+        geom_point(aes(text = college_name)) +
+        geom_text_repel(aes(label = college_name)) +
+        labs(title = "Total Enrollment Vs. Student-to-faculty Ratio",
+            x = "Enrollment",
+            y = "Student-to-faculty",
+            color = "Institution Type") +
+        theme_classic() +
+        scale_color_colorblind() 
+        
+        ggplotly(interactive2)
+     }
+})
 ```
 
 Majors
