@@ -43,6 +43,24 @@ renderImage({
     list(src = "images/graduate.png", width = 600, height = 600)
   })
 ```
+Minnesota College Map
+==========================
+```{r}
+mn_data <- mn_college_data %>%
+  mutate(LONGITUD = as.numeric(LONGITUD), LATITUDE = as.numeric(LATITUDE))
+
+mn_map <- leaflet() %>%
+  addTiles() %>%
+  setView(lng = -94.6859, lat = 46.7296, zoom = 6)
+
+
+mn_map <- mn_map %>%
+  addMarkers(data = mn_college_data,
+             ~longitude, ~latitude,
+             popup = ~paste("<b>Name:</b>", college_name, "<br><b>City:</b>", city, "<br><b>Total Enrollment</b>:", total_enrollment))
+mn_map
+```
+
 
 Tuition & Type
 ==========================
