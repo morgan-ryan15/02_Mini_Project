@@ -122,7 +122,7 @@ interactive <- mn_college_data |>
                                      "Public" = "1",
                                      "Private (not-for-profit)" = "2",
                                      "Private (for-profit)" = "3")) |>
-  filter(college_name != c("University of Minnesota", "Capella University")) |>
+  filter(college_name != c("University of Minnesota-Twin Cities", "Capella University")) |>
   ggplot(aes(x = total_enrollment, y = student_to_fac)) +
   geom_point(aes(text = college_name, color = public_private)) +
   geom_text_repel(aes(label = college_name)) +
