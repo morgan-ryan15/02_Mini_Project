@@ -250,15 +250,32 @@ interactive_data <- mn_college_data |>
                                      "Private (for-profit)" = "3")) 
 ```
 
+```{r, echo = FALSE, include = FALSE}
+#tibble for student-to-faculty interactive plot w/out outliers
+interactive_data_rm <- mn_college_data |>
+  select(total_enrollment, total_faculty, college_name, public_private) |>
+  filter(total_enrollment != "NA",
+         total_faculty != "NA") |>
+  mutate(student_to_fac = total_enrollment/total_faculty,
+         total_enrollment = as.numeric(total_enrollment),
+         public_private = as.factor(public_private),
+         public_private = fct_recode(public_private,
+                                     "Public" = "1",
+                                     "Private (not-for-profit)" = "2",
+                                     "Private (for-profit)" = "3")) |>
+  filter(college_name != "University of Minnesota-Twin Cities",
+         college_name != "Capella University")
+```
+
 ```{r, echo = FALSE, warning = FALSE}
 inputPanel(
-  checkboxInput("type_check", "Color by Institution Type?", value = FALSE)
+  checkboxInput("type_check", "Remove Outliers?", value = FALSE)
 )
 ```
 
 ```{r, echo = FALSE, warning = FALSE}
 renderPlotly({
-     if (input$type_check) {
+     if (!input$type_check) {
         interactive <- ggplot(interactive_data, aes(x = total_enrollment, y = student_to_fac)) +
         geom_point(aes(text = college_name, color = public_private)) +
         geom_text_repel(aes(label = college_name)) +
@@ -271,9 +288,9 @@ renderPlotly({
   
         ggplotly(interactive)
      }
-     else if (!input$type_check) {
-        interactive2 <- ggplot(interactive_data, aes(x = total_enrollment, y = student_to_fac)) +
-        geom_point(aes(text = college_name)) +
+     else if (input$type_check) {
+        interactive2 <- ggplot(interactive_data_rm, aes(x = total_enrollment, y = student_to_fac)) +
+        geom_point(aes(text = college_name, color = public_private)) +
         geom_text_repel(aes(label = college_name)) +
         labs(title = "Total Enrollment Vs. Student-to-faculty Ratio",
             x = "Enrollment",
