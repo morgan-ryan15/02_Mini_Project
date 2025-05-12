@@ -51,6 +51,15 @@ effy <- read_csv("final_project/data/effy2023.csv") |>
          total_men = EFYTOTLM,
          total_women = EFYTOTLW) |>
   filter(student_type == "2") #filters for undergraduate enrollment numbers 
+
+s <- read_csv("final_project/data/s2023_sis.csv") |>
+  select(college_id = UNITID,
+         employment_type = FACSTAT, 
+         total_faculty = SISTOTL) |>
+  filter(employment_type == "10") |> #staff with faculty status
+  select(-employment_type)
+
+
 ```
 
 ```{r}
@@ -63,7 +72,10 @@ ic_hd <- ic_full |>
 college_data <- ic_hd |>
   left_join(effy)
 
-mn_college_data <- college_data |>
+college_data2 <- college_data |>
+  left_join(s)
+
+mn_college_data <- college_data2 |>
   filter(state == "MN") |>
   arrange(college_name)
 ```
