@@ -11,14 +11,14 @@ runtime: shiny
 About
 ==========================
 
-Column
+Column {data-width = 650}
 ---------------------------
 
 #### Welcome!
 
 Hello high-schoolers! As recent high school graduates, we understand that navigating your college decision is difficult. We hope you find this website to be useful as you investigate Minnesota colleges and universities. We have conducted an analysis of multiple factors you might be considering, but please note that everyone cares about different things when evaluating colleges. This is just one place to start! Good luck!
 
-- Solveig, Ela, and Morgan
+-Solveig, Ela, and Morgan
 
 
 #### Information
@@ -35,7 +35,16 @@ Additionally, we have taken data from ["Niche"](https://www.niche.com/?ref=colle
 
 If you still have unanswered questions about the colleges you are interested in, we recommend visiting [U.S. News Best Colleges](https://www.usnews.com/best-colleges) or spending some time on the college's own website.  
 
-Tuition
+Column
+---------------------------
+
+```{r, echo = FALSE}
+renderImage({
+    list(src = "images/graduate.png", width = 600, height = 600)
+  })
+```
+
+Tuition & Type
 ==========================
 
 ```{r setup, include=FALSE}
@@ -55,6 +64,7 @@ library(ggplot2)
 library(ggthemes)
 library(ggrepel)
 library(plotly)
+library(kableExtra)
 ```
 
 ```{r, echo = FALSE, include = FALSE}
@@ -139,17 +149,35 @@ tuition_by_size <- mn_college_data |>
   summarize(mean_tuition = mean(in_state_tuition)) 
 ```
 
-Column 
+Column {data-height=950}
 -------------------------
+
+```{r}
+mn_college_data |>
+  select(college_name, public_private) |>
+  filter(public_private != "NA") |>
+  mutate(public_private = as.factor(public_private),
+         public_private = fct_recode(public_private,
+                                     "Public" = "1",
+                                     "Private (not-for-profit)" = "2",
+                                     "Private (for-profit)" = "3")) |>
+  rename(college_name, "College Name" = "college_name",
+         public_private, "College Type" = "public_private") |>
+  arrange(`College Type`) |>
+  kable()
+```
+
+
+Column {data-height = 1500}
+-------------------------
+
+**Tuition & Size**
 
 ```{r, echo = FALSE, warning = FALSE}
 inputPanel(
   checkboxInput("type_check", "Color by Institution Type?", value = FALSE)
 )
 ```
-
-Column {.tabset}
--------------------------
 
 ```{r, echo = FALSE, warning = FALSE}
 renderPlot({
@@ -162,7 +190,7 @@ renderPlot({
                subtitle = "Colored by Institution Type",
                x = "Size",
                y = "Average Tuition",
-               fill = "Type")
+               fill = "Type") 
      else if (!input$type_check)      
         ggplot(tuition_by_size, aes(x = size_type, y = mean_tuition))  + 
           geom_bar(stat = "identity") +
@@ -175,6 +203,35 @@ renderPlot({
                fill = "Type")
 })
 ```
+
+**Tuition & Type**
+
+```{r, echo = FALSE, warning = FALSE}
+mn_college_data |>
+  select(in_state_tuition, public_private) |>
+  filter(!is.na(in_state_tuition), in_state_tuition != ".") |>
+  group_by(public_private) |>
+  mutate(in_state_tuition = as.numeric(in_state_tuition),
+         public_private = as.factor(public_private),
+         public_private = fct_recode(public_private,
+                                     "Public" = "1",
+                                     "Private (not-for-profit)" = "2",
+                                     "Private (for-profit)" = "3")) |>
+  summarize(mean_tuition = mean(in_state_tuition)) |>
+  ggplot(aes(x = public_private, y = mean_tuition, fill = public_private)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = round(mean_tuition, 1)), vjust = -0.5, size = 3) +
+  labs(title = "Average Tuition by Institution Type",
+       x = "Type",
+       y = "Average Tuition") +
+  theme_classic() +
+  scale_fill_colorblind(guide = "none") 
+```
+
+Majors
+==========================
+
+Web Scraping: 
 
 ```{r, include = FALSE}
 
