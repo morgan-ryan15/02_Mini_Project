@@ -22,8 +22,8 @@ library(readr)
 
 ```
 
-
 ```{r}
+#Check if scraping is allowed
 robotstxt::paths_allowed("https://www.niche.com/colleges/search/best-colleges/")
 
 session <- bow("https://www.niche.com/colleges/carleton-college/majors/", force = TRUE)
@@ -33,7 +33,9 @@ top_majors <- scrape(session) |>
   html_text()
 top_majors
 ```
+
 ```{r}
+#A function that takes college names in the correct format (lower case with dashes) 
 scrape_majors <- function(college) {
  
     url <- str_c("https://www.niche.com/colleges/", college, "/majors/")
@@ -49,24 +51,12 @@ scrape_majors <- function(college) {
     )
 }
 
-scrape_majors("university-of-minnesota-twin-cities")
+scrape_majors("university-of-minnesota-twin-cities") #U of M example
 ```
 
-Web Scraping: 
-
-```{r, include = FALSE}
-
-robotstxt::paths_allowed("https://www.niche.com/colleges/search/best-colleges/")
-
-session <- bow("https://www.niche.com/colleges/carleton-college/majors/", force = TRUE)
-
-top_majors <- scrape(session) |>
-  html_nodes(".popular-entity__name") |>
-  html_text()
-top_majors
-
-
-college_data <- read_csv("~/Downloads/hd2023.csv") |>
+```{r}
+#Tibble of college names in the correct format from IPEDS data 
+college_data <- read_csv("final_project/data/hd2023 2.csv") |>
   filter(STABBR == "MN") |>
   select(college = INSTNM) 
 
@@ -77,6 +67,8 @@ college_for_majors <- college_data |>
 ```
 
 ```{r, include = FALSE}
+#Shiny attempt (the goal is to be able to select a college from a drop down and then get a list of the top 10 majors at that school)
+
 titlePanel("")
 
 inputPanel(
