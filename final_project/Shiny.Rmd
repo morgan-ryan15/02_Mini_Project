@@ -365,7 +365,51 @@ renderPlotly({
 Athletics
 ==========================
 
+```{r, echo = FALSE, include = FALSE}
+# check that scraping is allowed (Step 0)
+robotstxt::paths_allowed("https://en.wikipedia.org/wiki/Minnesota_Intercollegiate_Athletic_Conference")
 
+# Step 1: read_html()
+miac_colleges <- read_html("https://en.wikipedia.org/wiki/Minnesota_Intercollegiate_Athletic_Conference")
+
+# 2: html_nodes()
+miac_tables <- html_nodes(miac_colleges, css = "table") 
+miac_tables  # have to guesstimate which table contains climate info
+
+# 3: html_table()
+html_table(miac_tables, header = TRUE, fill = TRUE)    # find the right table
+
+miac_data <- html_table(miac_tables, header = TRUE, fill = TRUE)[[2]]  
+
+print(miac_data, n = 10)
+
+library(janitor)
+
+```
+
+```{r, echo = FALSE, include = FALSE}
+#bow and scrape data
+session <- bow("https://en.wikipedia.org/wiki/Minnesota_Intercollegiate_Athletic_Conference", force = TRUE)
+
+miac_result <- scrape(session) |>
+  html_nodes(css = "table") |> 
+  html_table(header = TRUE, fill = TRUE)
+
+#begin cleaning miac data
+miac_data1 <- miac_result[[2]] |>
+  clean_names() 
+
+miac_data1 <- miac_data1 |>
+  select(institution) |>
+  mutate(
+    #fixing name consistency
+    institution = str_trim(str_replace(institution, "\\[.*\\]", ""), side = "right"),
+    institution = str_trim(str_replace(institution, "Mary's University", "Mary's University of Minnesota"), side = "right")
+  )
+
+miac_data1 |>
+  kable()
+```
 
 Recommendations
 ==========================
