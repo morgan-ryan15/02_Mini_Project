@@ -164,6 +164,10 @@ mn_map
 Tuition & Type
 ==========================
 
+An important consideration in your college search is **cost**. College is expensive and it can be really intimidating to decide how much money you are willing to spend. On this page you will find a couple of plots that can help you get a better sense of how much you will be spending depending on the size of your school and whether it is a private or public institution. Note that the tuition expenses are calculated **before** aid, so the cost you would end up paying may be quite different. If you are deciding between a public and private institution, it might be best to apply to both schools, compare prices after aid, and then decide. 
+
+**College by Type**
+
 ```{r, echo = FALSE, include = FALSE}
 #tibble for tuition by size graph
 tuition_by_size <- mn_college_data |>
@@ -186,7 +190,7 @@ tuition_by_size <- mn_college_data |>
   summarize(mean_tuition = mean(in_state_tuition)) 
 ```
 
-Column {data-height=950}
+Column {data-height = 950}
 -------------------------
 
 ```{r, echo = FALSE}
@@ -211,7 +215,6 @@ server <- function(input, output) {
 shinyApp(ui = ui, server = server)
 ```
 
-
 ```{r, echo = FALSE, include = FALSE}
 filtered_mn_college_data <- mn_college_data |>
   select(college_name, public_private) |>
@@ -227,7 +230,7 @@ filtered_mn_college_data <- mn_college_data |>
   #kable() displays table nicely 
 ```
 
-Column {data-height = 1500}
+Column {data-height = 950}
 -------------------------
 
 **Tuition & Size**
@@ -292,6 +295,8 @@ Student/Faculty Ratio
 
 Column {data-height = 1500}
 -------------------------
+
+Although it might not seem like it yet, student-to-faculty ratio can play a big role in your college experience. As students who go to a school with a low student-to-faculty ratio, we can attest to how nice it is to have small class sizes and the ability to build relationships with your professors. Professors are a great resource for career exploration, internship searches, and as personal mentors. This plot will help you get a sense of what student-to-faculty ratios look like across Minnesota colleges. 
 
 ```{r, echo = FALSE, include = FALSE}
 #tibble for student-to-faculty interactive plot
@@ -369,7 +374,7 @@ Column {data-width = 750}
 ---------------------------
 **Minnesota Intercollegiate Athletic Conference Schools**
 
-This is the place for you if you're a current High School Student-Athlete looking to play at the next level! We've included a list of Division 3 Colleges and Universities in the MIAC, which is our **favorite** athletic conference in the NCAA. Now, if athletics isn't for you, we included a chart showing how many schools also don't participate in the NCAA, whether they play at the NAIA level or not. This will help you get a clue about how many schools are in and out of the NCAA in Minnesota. 
+This is the place for you if you're a current high school student-athlete looking to play at the next level or an avid sports fan! Below is a list of Division 3 Colleges and Universities in the MIAC (our **favorite** athletic conference in the NCAA). If athletics isn't for you, that's ok too! On the right is a chart showing how many schools participate in the NCAA and how many schools do not. Additionally, we have included a list of schools affiliated with the NCAA. See if the schools you are considering are on the list!
 
 ```{r, echo = FALSE, include = FALSE}
 # check that scraping is allowed (Step 0)
@@ -411,7 +416,8 @@ miac_data1 <- miac_data1 |>
     #fixing name consistency
     institution = str_trim(str_replace(institution, "\\[.*\\]", ""), side = "right"),
     institution = str_trim(str_replace(institution, "Mary's University", "Mary's University of Minnesota"), side = "right")
-  )
+  ) |>
+  rename("Institution" = "institution")
 
 miac_data1 |>
   kable()
@@ -442,12 +448,19 @@ ncaa |>
        y = "Count") +
   theme_classic() +
   scale_fill_colorblind(guide = "none") 
+```
 
+```{r, echo = FALSE}
 ncaa_schools <- mn_college_data |>
   select(college_name, ncaa) |>
   filter(ncaa == "1") |>
-  select(-ncaa)
+  select(-ncaa) |>
+  rename("NCAA School" = "college_name")
+
+ncaa_schools |>
+  kable()
 ```
+
 
 Recommendations
 ==========================
@@ -467,10 +480,10 @@ renderImage({
   })
 ```
 
-Column
+Column {data-width = 750}
 ---------------------------
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, include = FALSE}
 robotstxt::paths_allowed("https://www.niche.com/colleges/search/all-colleges/s/minnesota/")
 
 session <- bow("https://www.niche.com/colleges/search/all-colleges/s/minnesota/", force = TRUE)
@@ -480,9 +493,10 @@ top_colleges <- scrape(session) |>
   html_text() |>
   as_tibble() |>
   rename(value, "college" = "value")
+```
 
+```{r, echo = FALSE}
 top_colleges <- top_colleges |>
   mutate(rank = row_number()) |>
   kable()
-top_colleges
 ```
