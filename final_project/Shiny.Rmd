@@ -204,7 +204,6 @@ mn_college_data |>
   kable() #displays table nicely 
 ```
 
-
 Column {data-height = 1500}
 -------------------------
 
@@ -343,6 +342,76 @@ renderPlotly({
 Majors
 ==========================
 
+```{r, include = FALSE}
+#Check if scraping is allowed
+robotstxt::paths_allowed("https://www.niche.com/colleges/search/best-colleges/")
+
+session <- bow("https://www.niche.com/colleges/carleton-college/majors/", force = TRUE)
+
+top_majors <- scrape(session) |>
+  html_nodes(".popular-entity__name") |>
+  html_text()
+top_majors
+```
+
+```{r, echo = FALSE}
+#A function that takes college names in the correct format (lower case with dashes) 
+scrape_majors <- function(college) {
+ 
+    url <- str_c("https://www.niche.com/colleges/", college, "/majors/")
+    
+    session <- bow(url, force = TRUE)
+    
+   top_majors <- scrape(session) |>
+     html_nodes(".popular-entity__name") |>
+     html_text()
+    
+    tibble(college = college,
+           top_majors = top_majors
+    )
+}
+
+scrape_majors("university-of-minnesota-twin-cities") #U of M example
+```
+
+```{r, echo = FALSE}
+college_for_majors <- mn_college_data |>
+  select(college_name) |>
+  mutate(college = str_to_lower(college_name),
+         college = str_replace_all(college, "-", " "),
+         college = str_replace_all(college, " ", "-")) |>
+  select(-college_name)
+```
+
+```{r, echo = FALSE}
+#Shiny attempt (the goal is to be able to select a college from a drop down and then get a list of the top 10 majors at that school)
+
+titlePanel("")
+
+inputPanel(
+  selectInput("college", label = "college name",
+    choices = college_for_majors$college)
+)
+
+mainPanel(renderPrint({
+  scrape_majors <- function(college) {
+ 
+    url <- str_c("https://www.niche.com/colleges/", college, "/majors/")
+    
+    session <- bow(url, force = TRUE)
+    
+   top_majors <- scrape(session) |>
+     html_nodes(".popular-entity__name") |>
+     html_text()
+    
+   tibble(college = college,
+           top_majors = top_majors) |>
+     kable()
+  }
+  
+  
+}))
+```
 
 Recommendations
 ==========================
