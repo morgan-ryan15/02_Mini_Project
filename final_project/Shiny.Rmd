@@ -191,32 +191,24 @@ Column {data-height=950}
 
 ```{r, echo = FALSE}
 ui <- fluidPage(
-  checkboxInput("check_private", label = "Show Private Institutions?", 
-                choices = c("Public" = "Public",
-                "Private (not for profit)" = `Private (not-for-profit)`,
-                "Private (for-profit)" = `Private(for-profit)`)),
-
+  checkboxInput("check_private", "Show Private Institutions?", value = FALSE),
   tableOutput("college_table")
 )
 
 server <- function(input, output) {
+  
   output$college_table <- renderTable({
     if (input$check_private) {
       filtered_mn_college_data |>
-        filter(`College Type` != ("Public"|`Private (not-for-profit)`))
+        filter(`College Type` != "Public")
     } else {
       filtered_mn_college_data |>
         filter(`College Type` == "Public")
-    } else {
-      filtered_mn_college_data |>
-        filter(`College Type` == ("Public"|`Private (for-profit)`))
     }
-    
   })
 }
 
 shinyApp(ui = ui, server = server)
-
 ```
 
 
