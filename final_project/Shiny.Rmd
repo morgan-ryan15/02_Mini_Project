@@ -414,7 +414,7 @@ inputPanel(
     choices = college_for_majors$college)
 )
 
-mainPanel(renderPrint({
+mainPanel(renderTable({
   scrape_majors <- function(college) {
  
     url <- str_c("https://www.niche.com/colleges/", college, "/majors/")
