@@ -474,11 +474,26 @@ As three St. Olaf students, our last tip is to check out St. Olaf College! Go Ol
 
 **Best of luck!**
 
-Column
----------------------------
-
 ```{r, echo = FALSE}
 renderImage({
     list(src = "images/olaf_grad.png", width = 500, height = 550)
   })
+```
+
+Column
+---------------------------
+
+```{r}
+robotstxt::paths_allowed("https://www.niche.com/colleges/search/all-colleges/s/minnesota/")
+
+session <- bow("https://www.niche.com/colleges/search/all-colleges/s/minnesota/", force = TRUE)
+
+top_colleges <- scrape(session) |>
+  html_nodes(".nss-1s72fo9") |>
+  html_text() |>
+  as.tibble() |>
+  rename(value, "college" = "value")
+
+top_colleges <- top_colleges |>
+  mutate(rank = row_number())
 ```
