@@ -365,6 +365,9 @@ renderPlotly({
 Athletics
 ==========================
 
+Column {data-width = 750}
+---------------------------
+
 ```{r, echo = FALSE, include = FALSE}
 # check that scraping is allowed (Step 0)
 robotstxt::paths_allowed("https://en.wikipedia.org/wiki/Minnesota_Intercollegiate_Athletic_Conference")
@@ -387,7 +390,7 @@ library(janitor)
 
 ```
 
-```{r, echo = FALSE, include = FALSE}
+```{r, echo = FALSE}
 #bow and scrape data
 session <- bow("https://en.wikipedia.org/wiki/Minnesota_Intercollegiate_Athletic_Conference", force = TRUE)
 
@@ -409,6 +412,37 @@ miac_data1 <- miac_data1 |>
 
 miac_data1 |>
   kable()
+```
+
+Column
+---------------------------
+
+```{r, echo = FALSE, include = FALSE}
+ncaa <- mn_college_data |>
+  select(ncaa) |>
+  mutate(ncaa = as.factor(ncaa),
+         ncaa = fct_recode(ncaa,
+                           "NCAA" = "1",
+                           "Not NCAA" = "0",
+                           "Unknown" = "-1",
+                           "Not Applicable" = "-2")) |>
+  count(ncaa)
+```
+
+```{r, echo = FALSE}
+ncaa |>
+  ggplot(aes(x = ncaa, y = n, fill = ncaa)) +
+  geom_bar(stat = "identity") +
+  labs(title = "NCAA Affiliation",
+       x = "Affiliation",
+       y = "Count") +
+  theme_classic() +
+  scale_fill_colorblind(guide = "none") 
+
+ncaa_schools <- mn_college_data |>
+  select(college_name, ncaa) |>
+  filter(ncaa == "1") |>
+  select(-ncaa)
 ```
 
 Recommendations
