@@ -43,6 +43,7 @@ renderImage({
     list(src = "images/graduate.png", width = 600, height = 600)
   })
 ```
+
 Minnesota College Map
 ==========================
 
@@ -343,3 +344,23 @@ Majors
 ==========================
 
 
+Recommendations
+==========================
+
+Column {data-width = 750}
+---------------------------
+
+When it comes to college decisions, there is no one right choice. It depends on what is right for **you**! If you are looking to spend less money, consider a public institution. If you're after smaller class sizes, a private institution might be right for you. Looking for a big school? The U of M is a great option. Spend some time thinking about what is important to you, and go with your gut! 
+
+As three St. Olaf students, our last tip is to check out St. Olaf College! Go Oles! ;)
+
+**Best of luck!**
+
+Column
+---------------------------
+
+```{r, echo = FALSE}
+renderImage({
+    list(src = "images/olaf_grad.png", width = 500, height = 550)
+  })
+```
