@@ -347,19 +347,28 @@ Majors
 #| message: FALSE
 #| eval: FALSE
 
+library(httr)
+library(httr2)
+
+college_for_majors <- college_for_majors |>
+  filter(college != "adler-graduate-school")
+
 college_tibble <- tibble(College_name = character(), Major = character())
 
-
-for(i in length(college_for_majors)) {
-  url <- str_c("https://www.niche.com/colleges/", college_for_majors[i], "/majors/")
-  Sys.sleep(0.5) 
-  one_college <- GET(url)
-  details <- content(one_college, "parse")
-  college_tibble[i,1] <- details$College_name
-  college_tibble[i,2] <- details$Major
+for(i in 1:5) {
+  new <- scrape_majors(college_for_majors[2,])
+  college_tibble <- rbind(college_tibble, new)
 }
 
 college_tibble
+
+  url <- str_c("https://www.niche.com/colleges/", college_for_majors[1,], "/majors/")
+  Sys.sleep(0.5) 
+  one_college <- GET(url)
+  details <- content(one_college, "parse")
+  college_tibble[1,1] <- details$College_name
+  college_tibble[1,2] <- details$Major
+
 ```
 
 ```{r, include = FALSE}
