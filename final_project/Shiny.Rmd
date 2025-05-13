@@ -189,8 +189,39 @@ tuition_by_size <- mn_college_data |>
 Column {data-height=950}
 -------------------------
 
-```{r}
-mn_college_data |>
+```{r, echo = FALSE}
+ui <- fluidPage(
+  checkboxInput("check_private", label = "Show Private Institutions?", 
+                choices = c("Public" = "Public",
+                "Private (not for profit)" = `Private (not-for-profit)`,
+                "Private (for-profit)" = `Private(for-profit)`)),
+
+  tableOutput("college_table")
+)
+
+server <- function(input, output) {
+  output$college_table <- renderTable({
+    if (input$check_private) {
+      filtered_mn_college_data |>
+        filter(`College Type` != ("Public"|`Private (not-for-profit)`))
+    } else {
+      filtered_mn_college_data |>
+        filter(`College Type` == "Public")
+    } else {
+      filtered_mn_college_data |>
+        filter(`College Type` == ("Public"|`Private (for-profit)`))
+    }
+    
+  })
+}
+
+shinyApp(ui = ui, server = server)
+
+```
+
+
+```{r, echo = FALSE, include = FALSE}
+filtered_mn_college_data <- mn_college_data |>
   select(college_name, public_private) |>
   filter(public_private != "NA") |>
   mutate(public_private = as.factor(public_private),
@@ -200,8 +231,8 @@ mn_college_data |>
                                      "Private (for-profit)" = "3")) |>
   rename(college_name, "College Name" = "college_name",
          public_private, "College Type" = "public_private") |>
-  arrange(`College Type`) |>
-  kable() #displays table nicely 
+  arrange(`College Type`) 
+  #kable() displays table nicely 
 ```
 
 Column {data-height = 1500}
@@ -349,9 +380,6 @@ Majors
 
 library(httr)
 library(httr2)
-
-college_for_majors <- college_for_majors |>
-  filter(college != "adler-graduate-school")
 
 college_tibble <- tibble(College_name = character(), Major = character())
 
