@@ -342,39 +342,25 @@ renderPlotly({
 Majors
 ==========================
 
+
+
 ```{r}
 #| message: FALSE
 #| eval: FALSE
 
-# Must figure out pattern in URL for obtaining different movies
-#  - try searching for others
-movies <- c("Coco", "Wonder+Woman", "Get+Out", 
-            "The+Greatest+Showman", "Thor:+Ragnarok")
+college_tibble <- tibble(College_name = character(), Major = character())
 
-# Set up empty tibble
-omdb <- tibble(Title = character(), Rated = character(), Genre = character(),
-       Actors = character(), Metascore = double(), imdbRating = double(),
-       BoxOffice = double())
 
-# Use for loop to run through API request process 5 times,
-#   each time filling the next row in the tibble
-#  - can do max of 1000 GETs per day
-for(i in 1:5) {
-  url <- str_c("http://www.omdbapi.com/?t=",movies[i],
-               "&apikey=", myapikey)
+for(i in length(college_for_majors)) {
+  url <- str_c("https://www.niche.com/colleges/", college_for_majors[i], "/majors/")
   Sys.sleep(0.5) 
-  onemovie <- GET(url)
-  details <- content(onemovie, "parse")
-  omdb[i,1] <- details$Title
-  omdb[i,2] <- details$Rated
-  omdb[i,3] <- details$Genre
-  omdb[i,4] <- details$Actors
-  omdb[i,5] <- parse_number(details$Metascore)
-  omdb[i,6] <- parse_number(details$imdbRating)
-  omdb[i,7] <- parse_number(details$BoxOffice)   # no $ and ,'s
+  one_college <- GET(url)
+  details <- content(one_college, "parse")
+  college_tibble[i,1] <- details$College_name
+  college_tibble[i,2] <- details$Major
 }
 
-omdb
+college_tibble
 ```
 
 ```{r, include = FALSE}
