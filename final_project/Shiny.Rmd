@@ -367,6 +367,9 @@ Athletics
 
 Column {data-width = 750}
 ---------------------------
+**Minnesota Intercollegiate Athletic Conference Schools**
+
+This is the place for you if you're a current High School Student-Athlete looking to play at the next level! We've included a list of Division 3 Colleges and Universities in the MIAC, which is our **favorite** athletic conference in the NCAA. Now, if athletics isn't for you, we included a chart showing how many schools also don't participate in the NCAA, whether they play at the NAIA level or not. This will help you get a clue about how many schools are in and out of the NCAA in Minnesota. 
 
 ```{r, echo = FALSE, include = FALSE}
 # check that scraping is allowed (Step 0)
@@ -416,6 +419,7 @@ miac_data1 |>
 
 Column
 ---------------------------
+**Colleges and Universities Participating in the NCAA**
 
 ```{r, echo = FALSE, include = FALSE}
 ncaa <- mn_college_data |>
