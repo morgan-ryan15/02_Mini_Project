@@ -483,7 +483,7 @@ renderImage({
 Column
 ---------------------------
 
-```{r}
+```{r, echo = FALSE}
 robotstxt::paths_allowed("https://www.niche.com/colleges/search/all-colleges/s/minnesota/")
 
 session <- bow("https://www.niche.com/colleges/search/all-colleges/s/minnesota/", force = TRUE)
@@ -491,9 +491,11 @@ session <- bow("https://www.niche.com/colleges/search/all-colleges/s/minnesota/"
 top_colleges <- scrape(session) |>
   html_nodes(".nss-1s72fo9") |>
   html_text() |>
-  as.tibble() |>
+  as_tibble() |>
   rename(value, "college" = "value")
 
 top_colleges <- top_colleges |>
-  mutate(rank = row_number())
+  mutate(rank = row_number()) |>
+  kable()
+top_colleges
 ```
