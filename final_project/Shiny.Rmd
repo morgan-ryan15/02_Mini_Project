@@ -31,9 +31,9 @@ Solveig Senf, Ela Kanade, & Morgan Ryan
 
 The data used in this project is from National Center for Education Statistics' IPEDS data base. We compiled data from multiple data sets which all can be accessed [here](https://nces.ed.gov/ipeds/datacenter/DataFiles.aspx?gotoReportId=7&fromIpeds=true&sid=3ce8c2b7-5a48-42a0-baf2-9089ef924924&rtid=7). 
 
-Additionally, we have taken data from ["Niche"](https://www.niche.com/?ref=colleges). It is an excellent resource for information on colleges. Just search for a school!
+Additionally, we have taken data from the Wikipedia page ["Minnesota Intercollegiate Athletic Conference"](https://en.wikipedia.org/wiki/Minnesota_Intercollegiate_Athletic_Conference). 
 
-If you still have unanswered questions about the colleges you are interested in, we recommend visiting [U.S. News Best Colleges](https://www.usnews.com/best-colleges) or spending some time on the college's own website.  
+If you still have unanswered questions about the colleges you are interested in, we recommend visiting [U.S. News Best Colleges](https://www.usnews.com/best-colleges), [Niche](https://www.niche.com/?ref=colleges), or spending some time on the college's own website.  
 
 Column
 ---------------------------
@@ -166,6 +166,9 @@ Tuition & Type
 
 An important consideration in your college search is **cost**. College is expensive and it can be really intimidating to decide how much money you are willing to spend. On this page you will find a couple of plots that can help you get a better sense of how much you will be spending depending on the size of your school and whether it is a private or public institution. Note that the tuition expenses are calculated **before** aid, so the cost you would end up paying may be quite different. If you are deciding between a public and private institution, it might be best to apply to both schools, compare prices after aid, and then decide. 
 
+Column {data-height = 1000}
+-------------------------
+
 **College by Type**
 
 ```{r, echo = FALSE, include = FALSE}
@@ -190,9 +193,6 @@ tuition_by_size <- mn_college_data |>
   summarize(mean_tuition = mean(in_state_tuition)) 
 ```
 
-Column {data-height = 950}
--------------------------
-
 ```{r, echo = FALSE}
 ui <- fluidPage(
   checkboxInput("check_private", "Show Private Institutions?", value = FALSE),
@@ -204,10 +204,10 @@ server <- function(input, output) {
   output$college_table <- renderTable({
     if (input$check_private) {
       filtered_mn_college_data |>
-        filter(`College Type` != "Public")
+        filter(`College Type` != "Public") 
     } else {
       filtered_mn_college_data |>
-        filter(`College Type` == "Public")
+        filter(`College Type` == "Public") 
     }
   })
 }
@@ -226,14 +226,13 @@ filtered_mn_college_data <- mn_college_data |>
                                      "Private (for-profit)" = "3")) |>
   rename(college_name, "College Name" = "college_name",
          public_private, "College Type" = "public_private") |>
-  arrange(`College Type`) 
-  #kable() displays table nicely 
+  arrange(`College Type`)
 ```
 
-Column {data-height = 950}
+Column 
 -------------------------
 
-**Tuition & Size**
+**Tuition and Enrollment**
 
 ```{r, echo = FALSE, warning = FALSE}
 inputPanel(
@@ -266,7 +265,7 @@ renderPlot({
 })
 ```
 
-**Tuition & Type**
+**Tuition and Type**
 
 ```{r, echo = FALSE, warning = FALSE}
 mn_college_data |>
@@ -455,7 +454,7 @@ ncaa_schools <- mn_college_data |>
   select(college_name, ncaa) |>
   filter(ncaa == "1") |>
   select(-ncaa) |>
-  rename("NCAA School" = "college_name")
+  rename("NCAA Schools" = "college_name")
 
 ncaa_schools |>
   kable()
@@ -480,23 +479,3 @@ renderImage({
   })
 ```
 
-Column {data-width = 750}
----------------------------
-
-```{r, echo = FALSE, include = FALSE}
-robotstxt::paths_allowed("https://www.niche.com/colleges/search/all-colleges/s/minnesota/")
-
-session <- bow("https://www.niche.com/colleges/search/all-colleges/s/minnesota/", force = TRUE)
-
-top_colleges <- scrape(session) |>
-  html_nodes(".nss-1s72fo9") |>
-  html_text() |>
-  as_tibble() |>
-  rename(value, "college" = "value")
-```
-
-```{r, echo = FALSE}
-top_colleges <- top_colleges |>
-  mutate(rank = row_number()) |>
-  kable()
-```
