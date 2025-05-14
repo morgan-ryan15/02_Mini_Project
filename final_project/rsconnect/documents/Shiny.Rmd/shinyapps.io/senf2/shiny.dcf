@@ -1,0 +1,12 @@
+name: shiny
+title:
+username: senf2
+account: senf2
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 14756690
+bundleId: 10284325
+url: https://senf2.shinyapps.io/shiny/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE

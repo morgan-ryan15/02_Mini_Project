@@ -33,6 +33,8 @@ The data used in this project is from National Center for Education Statistics' 
 
 Additionally, we have taken data from the Wikipedia page ["Minnesota Intercollegiate Athletic Conference"](https://en.wikipedia.org/wiki/Minnesota_Intercollegiate_Athletic_Conference). 
 
+Finally, our code for this project can be accessed through GitHub [here](https://github.com/morgan-ryan15/02_Mini_Project/tree/main/final_project).
+
 If you still have unanswered questions about the colleges you are interested in, we recommend visiting [U.S. News Best Colleges](https://www.usnews.com/best-colleges), [Niche](https://www.niche.com/?ref=colleges), or spending some time on the college's own website.  
 
 Column
