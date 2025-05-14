@@ -138,7 +138,7 @@ Check out this map of Minnesota colleges and universities! Click on each marker 
 ```{r, echo = FALSE}
 renderImage({
     list(src = "images/pointing_grad.png", width = 400, height = 450)
-  })
+  }) 
 ```
 
 Column {data-width = 600}
@@ -254,7 +254,7 @@ renderPlot({
                fill = "Type") 
      else if (!input$type_check)      
         ggplot(tuition_by_size, aes(x = size_type, y = mean_tuition))  + 
-          geom_bar(stat = "identity") +
+          geom_bar(stat = "identity") + #removed fill = public_private
           theme_classic() +
           scale_fill_colorblind() +
           labs(title = "Average Tuition by Institution Size",
@@ -457,7 +457,7 @@ ncaa_schools <- mn_college_data |>
   rename("NCAA Schools" = "college_name")
 
 ncaa_schools |>
-  kable()
+  kable() #displays table nicely
 ```
 
 
